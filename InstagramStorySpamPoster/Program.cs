@@ -9,7 +9,7 @@ internal class Program
         var username = "testing.instaapi";
         var password = "Aabb1998";
         var storyPath = @".\story.jpg";
-        var mentions = new string[] { "mysweetydevil" , "julichka098" };
+        var mentions = new string[] { "mysweetydevil", "julichka098" };
         var url = "https://www.google.com";
         var caption = "Cute Cat22";
 
