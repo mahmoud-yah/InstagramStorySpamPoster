@@ -1,57 +1,40 @@
-﻿using InstagramApiSharp.API.Builder;
-using InstagramApiSharp.Classes;
-using InstagramApiSharp.Classes.Models;
-using InstagramApiSharp.Logger;
+﻿using System.Net;
 
+namespace InstagramStorySpamPoster;
 
-namespace InstagramStorySpamPoster
+internal class Program
 {
-    internal class Program
+    static void Main()
     {
-        private static UserSessionData? user;
-        static void Main(string[] args)
+        var username = "testing.instaapi";
+        var password = "Aabb1998";
+        var storyPath = @".\story.jpg";
+        var mentions = new string[] { "mysweetydevil" , "julichka098" };
+        var url = "https://www.google.com";
+        var caption = "Cute Cat22";
+
+        var proxyHost = "socks5";
+        var proxyPort = "63109";
+        var proxyUserName = "pKFuebaA";
+        var proxyPassword = "aL31SMvg";
+        var proxyHandler = new HttpClientHandler()
         {
-            logInWithEmailAndPassword();
-            Console.ReadKey();
-        }
-
-        static async void logInWithEmailAndPassword()
-        {
-            user = new UserSessionData
+            Proxy = new WebProxy()
             {
-                UserName = "testing.instaapi",
-                Password = "Aabb1998"
-            };
-            var _instaApi = InstaApiBuilder.CreateBuilder()
-                .SetUser(user)
-                .UseLogger(new DebugLogger(LogLevel.Exceptions))
-                .Build();
-            if (!_instaApi.IsUserAuthenticated)
-            {
-                Console.WriteLine($"Logging In as {user.UserName}");
-                var logInResult = await _instaApi.LoginAsync();
-                if (!logInResult.Succeeded)
-                {
-                    Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-                }
-                Console.WriteLine("Getting full name..");
-                var name = _instaApi.GetLoggedUser().LoggedInUser.FullName;
-                Console.WriteLine(name);
-            }
-            
-            var image = new InstaImage { Uri = @"c:\Users\m-y-6\Desktop\instagram\story.jpg" };
+                Address = new Uri($"{proxyHost}:{proxyPort}"),
+                BypassProxyOnLocal = false,
+                UseDefaultCredentials = true,
+                //Proxy file format: host:port:username:password
+                Credentials = new NetworkCredential(userName: proxyUserName, password: proxyPassword)
+            },
+            UseProxy = true
+        };
 
-            var storyOptions = new InstaStoryUploadOptions();
-            storyOptions.Mentions.Add(new InstaStoryMentionUpload { X=0.5,Y=0.5,Z=0,Width=0.79722,Height=0.2196,Rotation=0,Username= "mysweetydevil" ,});
-            
-            var result = await _instaApi.StoryProcessor.UploadStoryPhotoAsync(image,"Cute Cat",storyOptions);
-            Console.WriteLine(result.Succeeded
-                ? $"Story created: {result.Value.Media.Pk}"
-                : $"Unable to upload photo story: {result.Info.Message}");
-            
-        }
+        var account = InstaSpam.Login(username, password, proxyHandler).Result;
+        account?.Post(storyPath, mentions, url, caption);
 
+        Console.WriteLine("Done");
+        Console.ReadKey();
     }
 }
-    
-    
+
